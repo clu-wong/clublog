@@ -21,7 +21,10 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 
 func main() {
-	db, _ := gorm.Open("mysql", "root:12345678@/goblogdb?charset=utf8mb4&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:12345678@/goblogdb?charset=utf8mb4&parseTime=True&loc=Local")
+	if err != nil{
+		panic("db error: "+err.Error())
+	}
 	db.AutoMigrate(&models.User{})
 	t := &Template{
 		templates: template.Must(template.ParseGlob("public/views/*.html")),
@@ -29,6 +32,7 @@ func main() {
 
 	// Echo instance
 	e := echo.New()
+	// render template
 	e.Renderer = t
 
 	// Middleware
@@ -47,7 +51,8 @@ func main() {
 
 // Handler
 func hello(c echo.Context) error {
-	return c.Render(http.StatusOK, "hello.html", "World")
+	return c.String(200, "hello")
+	//return c.Render(http.StatusOK, "hello.html", "World")
 }
 func new_session(c echo.Context) error{
 	return c.Render(http.StatusOK,"login.html", "World")
